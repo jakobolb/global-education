@@ -1,0 +1,1179 @@
+---
+title: "Global Education Insights"
+description: |
+  An Examination of Global Educational Trends and Disparities
+author: "Jakob Olberding"
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    toc: true
+    toc_depth: 6
+    toc_float: true
+    css: toc-styles.css
+    number_sections: true
+    self_contained: false
+
+bibliography: Bibliography/quellen.bib
+css: Bibliography/apa.csl                        
+---
+
+```{css, echo = FALSE}
+d-article > p,
+d-article > figure > figcaption {
+  text-align: justify;
+}
+```
+
+<!-- TOC JAVASCRIPT ELEMENTS -->
+```{=html}
+<script>
+function toggle () {
+  document.getElementById("TOC").classList.toggle("hide");
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const id = entry.target.getAttribute('id');
+      if (entry.intersectionRatio > 0) {
+        document.querySelector(`[href="#${id}"]`).parentElement.classList.add('active');
+      } else {
+        document.querySelector(`[href="#${id}"]`).parentElement.classList.remove('active');
+      }
+    });
+  });
+
+  // Track all headings that have an `id` applied
+  document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').forEach((h1, h2, h3, h4, h5, h6) => {
+    observer.observe(h1, h2, h3, h4, h5, h6);
+  });
+  
+});
+</script>
+```
+<!-- TOC HTML ELEMENTS -->
+<input type="button" class="d-article-with-toc" id="TOC" value="&#x2630" title="Toggle (Hide/Show) Table of Contents" alt="Toggle button for hiding/showing the Table of Contents" onclick="toggle()" style="padding:7px; border: 0px;"/>
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+library(tidyverse)
+library(plotly)
+library(reshape2) 
+library(tidymodels)
+library(xaringanExtra)
+library(rmarkdown)
+library(RColorBrewer)
+xaringanExtra::use_panelset()
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file()) 
+  
+```
+
+
+## 1. Introduction
+
+> "Education is the most powerful weapon we can use to change the world."
+>
+> *- Nelson Mandela (2003)*
+
+The world is facing numerous challenges that require innovative solutions. These include, for example, climate protection measures, sustainable agriculture, and affordable, high-quality healthcare for all people worldwide. Innovations in these and many other areas are necessary to address the major problems of our time. However, although the need for innovations is great, the supply remains limited. While there are creative and talented people everywhere who are willing to make a contribution, unfortunately, only a few, mostly wealthy children, have the opportunity to develop their full potential. There are still far too many children in the world, particularly from poor countries, who grow up hungry, in poor health, and with poor education. As a result, the global population is deprived of a multitude of creative ideas and innovative solutions that could enrich and advance our society [@owid-talent-is-everywhere-opportunity-is-not].
+
+This paper, therefore, examines various aspects of education on a global level. In particular, it looks at how the level of education varies in different countries and regions of the world and what trends can be observed over time. It also addresses gender-specific differences and compares the quality of education across different countries. The goal is to gain a better understanding of education on a global level. This paper is based on the following questions:
+
+1.  What is the education level in different countries and regions of the world, and what differences and trends can be observed?
+2.  Which countries have comparable education standards, and how are they similar or different?
+
+The structure of the paper is as follows: First, the current state of the literature is presented in the second chapter. The third chapter investigates the first research question by analyzing enrollment rates, gender-specific differences, and the quality of education in various countries and regions of the world, highlighting observable trends. Subsequently, the fourth chapter uses a k-means cluster analysis to identify similarities and differences in education across different countries worldwide. Finally, the fifth chapter summarizes the results of the analysis.
+
+## 2. Current Literature
+
+While most children worldwide have the opportunity to attend school, hundreds of millions of children still do not have this chance. Current estimates show that 60 million children of primary school age do not attend school at all. Many children who attend primary school drop out and do not continue to secondary education. This means that even more children or teenagers are missing from secondary school compared to primary school. In 2019, this number was around 260 million [@owid-global-education]. In addition, children from poor countries learn much less in school. Even after several years of schooling, millions of students lack basic reading, writing, and arithmetic skills. For example, a study in Ghana and Malawi found that more than four-fifths of students at the end of grade 2 were unable to read a single familiar word, such as "the" or "cat" [@hungi]. In urban Pakistan in 2015, only three-fifths of grade 3 students could correctly perform a subtraction like 54-25. In rural areas, it was just over two-fifths [@aser_pakistan_2015]. Although not all developing countries suffer from such extreme deficits, many are still far from the educational standards found in most affluent nations. According to leading international assessments of literacy and numeracy skills, the average student in low-income countries performs worse than 95% of students in high-income countries [@inbook]. In a 2015 PISA study, the top 25% of students from countries such as Algeria, the Dominican Republic, or Kosovo still performed below the bottom 25% of students from OECD countries [@pisa_2016]. Indeed, income has a significant impact on students' learning outcomes not only across countries but also within many nations. In a study from 2014, only 5% of girls from the poorest quintile of the population in Cameroon had learned enough to continue their education, compared to 76% of girls from the wealthiest quintile. This disparity highlights the stark differences in educational opportunities and outcomes based on socioeconomic status even within countries [@worldbank_benin_2016].
+
+## 3. Level of education in different countries and regions
+
+In this chapter, we will examine the first research question in greater detail. To do so, we will divide the research question into three sub-questions and analyze global enrollment rates, gender-specific differences, and the quality of education that children receive in various countries and regions around the world.
+
+### 3.1 Datasets
+
+The following graphics, created to answer the first research question, are based on different datasets. Therefore, this chapter lists the data underlying each figure.
+
+| Figure    | Dataset  |
+|-----------|----------|
+| Figure 1  | [@data1] |
+| Figure 2  | [@data2] |
+| Figure 3  | [@data2] |
+| Figure 4  | [@data2] |
+| Figure 5  | [@data3] |
+| Figure 6  | [@data4] |
+| Figure 7  | [@data5] |
+| Figure 8  | [@data6] |
+| Figure 9  | [@data7] |
+| Figure 10 | [@data7] |
+| Figure 11 | [@data8] |
+| Figure 12 | [@data8] |
+
+### 3.2 How many children worldwide do not go to school?
+
+Although most children in the world can go to school, millions of children still do not have this opportunity. The figure below shows the number of children of official primary school age who do not attend primary or secondary school from 1987 to 2019.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Children out of school worldwide", out.width = "100%"}
+df <- read.csv("./data/out-of-school-children-of-primary-school-age-by-world-region.csv")
+df <- df %>% 
+  filter(Code == "") %>%
+  filter(Entity != "Arab World (WB)") %>%
+  filter(Entity != "Central Europe and the Baltics (WB)") %>% 
+  filter(grepl("\\(WB\\)", Entity)) %>% 
+  filter(Year != 1986 & Year != 2021 & Year != 2020)
+  
+
+df <- df %>%
+  pivot_wider(names_from = Entity, values_from = Children.out.of.school..primary)
+
+df$Summe <- rowSums(df[, c("East Asia and Pacific (WB)", 
+                            "Europe and Central Asia (WB)",
+                            "Latin America and Caribbean (WB)",
+                            "Middle East and North Africa (WB)", 
+                            "North America (WB)",
+                            "South Asia (WB)",
+                            "Sub-Saharan Africa (WB)")])
+
+
+accumulate_by <- function(dat, var) {
+  var <- lazyeval::f_eval(var, dat)
+  lvls <- plotly:::getLevels(var)
+  dats <- lapply(seq_along(lvls), function(x) {
+    cbind(dat[var %in% lvls[seq(1, x)], ], frame = lvls[[x]])
+  })
+  dplyr::bind_rows(dats)
+}
+
+df <- df %>% accumulate_by(~Year)
+colors <- RColorBrewer::brewer.pal(7, "Set2")
+
+fig <- df %>% plot_ly(
+  x = ~Year, 
+  y = ~`Sub-Saharan Africa (WB)`, 
+  frame = ~frame,
+  type = 'scatter', 
+  mode = 'none', 
+  stackgroup = 'one', 
+  fillcolor = colors[7],
+  name = 'Sub-Saharan Africa',
+  text = ~paste("Year: ", Year
+                , "<br>Sub-Saharan Africa: ", `Sub-Saharan Africa (WB)`
+                , "<br>Total: ", Summe),
+  hoverinfo = 'text'
+)
+
+fig <- fig %>% add_trace(
+  y = ~`South Asia (WB)`, 
+  fillcolor = colors[6],
+  name = 'South Asia',
+  text = ~paste("Year: ", Year
+                , "<br>South Asia: ", `South Asia (WB)`
+                , "<br>Total: ", Summe),
+  hoverinfo = 'text'
+)
+
+fig <- fig %>% add_trace(
+  y = ~`East Asia and Pacific (WB)`, 
+  fillcolor = colors[1],
+  name = 'East Asia and Pacific',
+  text = ~paste("Year: ", Year
+                , "<br>East Asia and Pacific: ", `East Asia and Pacific (WB)`
+                , "<br>Total: ", Summe),
+  hoverinfo = 'text'
+)
+
+fig <- fig %>% add_trace(
+  y = ~`Middle East and North Africa (WB)`, 
+  #fillcolor = 'rgba(225,96,96,255)',
+  fillcolor = colors[4],
+  name = 'Middle East and North Africa',
+  text = ~paste("Year: ", Year
+                , "<br>Middle East and North Africa: ", `Middle East and North Africa (WB)`
+                , "<br>Total: ", Summe),
+  hoverinfo = 'text'
+)
+
+fig <- fig %>% add_trace(
+  y = ~`Latin America and Caribbean (WB)`, 
+  #fillcolor = 'rgba(99,185,99,255)',
+  fillcolor = colors[3],
+  name = 'Latin America and Caribbean',
+  text = ~paste("Year: ", Year
+                , "<br>Latin America and Caribbean: ", `Latin America and Caribbean (WB)`
+                , "<br>Total: ", Summe),
+  hoverinfo = 'text'
+)
+
+fig <- fig %>% add_trace(
+  y = ~`Europe and Central Asia (WB)`, 
+  #fillcolor = 'rgba(255,161,77,255)',
+  fillcolor = colors[2],
+  name = 'Europe and Central Asia',
+  text = ~paste("Year: ", Year
+                , "<br>Europe and Central Asia: ", `Europe and Central Asia (WB)`
+                , "<br>Total: ", Summe),
+  hoverinfo = 'text'
+)
+
+fig <- fig %>% add_trace(
+  y = ~`North America (WB)`, 
+  #fillcolor = 'rgba(101,161,203,255)', 
+  fillcolor = colors[5],
+  name = 'North America',
+  text = ~paste("Year: ", Year
+                , "<br>North America: ", `North America (WB)`
+                , "<br>Total: ", Summe),
+  hoverinfo = 'text'
+)
+
+
+fig <- fig %>% layout(
+  title = "Children out of school worldwide",
+  yaxis = list(
+    title = "Children not in primary school",
+    range = c(0,120000000)
+  ),
+  xaxis = list(
+    title = "Year" 
+  )
+)
+
+fig <- fig %>% animation_opts(
+  frame = 100, 
+  transition = 0, 
+  redraw = FALSE
+)
+fig <- fig %>% animation_slider(
+  currentvalue = list(
+    prefix = "Year "
+  )
+)
+
+fig <- fig %>% animation_slider(
+  hide = T
+)
+fig <- fig %>% animation_button(
+  x = 1, xanchor = "right", y = 0.025, yanchor = "bottom"
+)
+
+fig
+  
+```
+
+The good news is that from 1987 to 2019, the number of children not attending school worldwide decreased from nearly 100 million to about 60 million. A breakdown by region shows that the Sub-Saharan Africa and South Asia regions contribute significantly to the total number. However, it is important to consider that these two regions are also the most populous. In South Asia (yellow area), the number of children not attending school decreased significantly from the 1990s to around 2015. However, Sub-Saharan Africa (brown area) remains the region with the highest number of out-of-school children throughout the entire period, although there is a slight decline observed here as well. Other regions have comparatively much lower numbers, with Europe and Central Asia, as well as North America, having nearly no children out of school. This figure clearly shows that while the number of out-of-school children worldwide has decreased, there are still significant challenges in certain regions, particularly in Sub-Saharan Africa and South Asia.
+
+Figure 2 helps to provide a better understanding of how these numbers are distributed across individual countries within the regions. The percentage of children not attending primary school in each country is considered, using the most recent values available for each country. The most recent data are from 2019, while the oldest are from 2014. The violin plot illustrates the distribution of percentage values within each region.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Share of children in primary school age who are out of school", out.width = "100%"}
+
+df <- read.csv("./data/primary-enrollment-selected-countries.csv")
+countrys <- read.csv("./data/world-regions-according-to-the-world-bank.csv")
+countrys <- subset(countrys, select = -c(Entity, Year))
+
+
+df <- df %>% 
+  filter(Code != "") %>%
+  merge(countrys, by = "Code", all.x = TRUE) %>%
+  arrange(desc(Year)) %>%
+  distinct(Code, .keep_all = TRUE) %>% 
+  filter(Year >= 2014) %>%
+  mutate(out.of.school = 100 - Combined.total.net.enrolment.rate..primary..both.sexes)
+
+
+fig <- df %>%
+  plot_ly(
+    x = ~World.Region.according.to.the.World.Bank,
+    y = ~out.of.school,
+    split = ~World.Region.according.to.the.World.Bank,
+    type = 'violin',
+    color = ~World.Region.according.to.the.World.Bank,
+    box = list(
+      visible = T
+    ),
+    meanline = list(
+      visible = T
+    ),
+    text = ~paste("Country: ", Entity, "<br>Value: ", out.of.school),  # Text für Hover-Info
+    hoverinfo = "text" 
+  ) 
+
+fig <- fig %>%
+  layout(
+    title = "Share of children in primary school age who are out of school",
+    xaxis = list(
+      title = "Region"
+    ),
+    yaxis = list(
+      title = "Percentage",
+      zeroline = F
+    )
+  )
+
+fig
+  
+```
+
+The graphic shows that in all regions of the world (except Sub-Saharan Africa), the percentage of children not attending school is low. The median and mean for these five continents fall within a very small range (between 3% and 10%). Particularly in the regions of East Asia and Pacific, Europe and Central Asia, and North America, the boxplots indicate low variance (except for a few outliers in East Asia and Pacific, which are shown in the figure). This reflects similarly high enrollment rates in the individual countries within these regions. In Latin America and the Caribbean, the Middle East and North Africa, as well as in South Asia, the interquartile range and the upper whisker are significantly more pronounced, indicating considerable differences in enrollment rates among the countries in these regions. Sub-Saharan Africa has the worst enrolment rates (median: 15%, mean: 20%) and also the widest distribution and highest dispersion, with some outliers reaching up to 65%. This highlights significant educational inequalities in this region.
+
+To get a better picture of the enrollment rates of individual countries, not just regions, over time, these are shown in Figure 3.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Share of children in primary school age who are in school", out.width = "100%"}
+
+df <- read_csv("./data/primary-enrollment-selected-countries.csv")
+df <- df %>% 
+  filter(Code != "" & Code != "OWID_WRL") %>%
+  filter(Year != 2019 & Year != 2018) %>%
+  rename(Enrolment = `Combined total net enrolment rate, primary, both sexes`)
+
+
+# light grey boundaries
+l <- list(color = toRGB("black"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = FALSE,
+  projection = list(type = 'Mercator')
+)
+
+fig <- plot_geo(df, frame = ~Year)
+fig <- fig %>% add_trace(
+  z = ~Enrolment,
+  zmin = 0,
+  zmax = 100,
+  colors = 'Blues',
+  text = ~Entity, 
+  locations = ~Code, 
+  marker = list(line = l)
+)
+fig <- fig %>% layout(
+  title = 'Share of children in primary school age who are in school',
+  geo = g
+)
+
+fig
+  
+```
+
+The graphic shows the proportion of children attending primary school relative to the total population of children of official primary school age from 1820 to 2017. Here again, the progress made worldwide is evident. Just 100 years ago, a majority of countries had enrollment rates below 10%. By 2017, enrollment rates had significantly improved. Countries in North America, Europe, as well as parts of Latin America and the Middle East now have a very high proportion of enrolled children (90-100%). For example, in the USA, nearly 95% of children attended primary school in 2017. In Brazil, it was 96%, and in Egypt, 97%. The lowest enrollment rates are primarily found in Sub-Saharan African countries. The three countries with the lowest proportion of enrolled children can also be found here (South Sudan (2015): 35%, Equatorial Guinea (2015): 44%, and Liberia (2017): 44%).
+
+As previously mentioned, there have been significant improvements in school enrollment rates over the last 200 years. But what does it look like over the past 20 years? Which countries have experienced the greatest percentage change in enrollment rates, and which have seen the least? Figure 4 shows the percentage change in primary school enrollment for children of primary school age over a 20-year period. The figure depicts the 10 countries with the greatest percentage change and the 10 countries with the least change.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Change in primary enrollment rates over the past 20 years", out.width = "100%"}
+
+df <- read.csv("./data/primary-enrollment-selected-countries.csv")
+df <- df %>% 
+  filter(Code != "") 
+
+countries_new <- df %>%
+  filter(Year %in% c(2018, 2017, 2016)) %>%
+  group_by(Entity) %>%
+  slice(which.max(Year)) %>%
+  ungroup() %>%
+  rename(enrolment_new = Combined.total.net.enrolment.rate..primary..both.sexes) %>%
+  rename(Year_new = Year)
+
+countries_old <- df %>%
+  filter(Year %in% c(2000, 1999, 1998, 1997, 1996)) %>%
+  group_by(Entity) %>%
+  slice(which.min(Year)) %>%
+  ungroup() %>%
+  select(-Entity) %>%
+  rename(enrolment_old = Combined.total.net.enrolment.rate..primary..both.sexes) %>%
+  rename(Year_old = Year)
+
+df <- inner_join(countries_new, countries_old, by = "Code")
+
+df <- df %>%
+  mutate(Gap = abs(enrolment_new - enrolment_old)) %>%
+  arrange(desc(Gap))
+
+df <- bind_rows(
+  head(df, 10),
+  tail(df, 10)
+)
+
+df$enrolment_new <- round(df$enrolment_new, digits = 2)
+df$enrolment_old <- round(df$enrolment_old, digits = 2)
+df$Gap <- round(df$Gap, digits = 2)
+
+
+df$Entity <- factor(df$Entity, levels = df$Entity[order(df$enrolment_old)])
+
+
+colors <- RColorBrewer::brewer.pal(3, "Set2")
+
+fig <- plot_ly(df, color = I("gray80")) %>% 
+  add_segments(x = ~enrolment_old, xend = ~enrolment_new, y = ~Entity, yend = ~Entity, showlegend = FALSE) %>% 
+  add_markers(x = ~enrolment_old, y = ~Entity, name = "Enrolment 20 years ago", color = colors[1], text = ~paste(Entity, "<br>Year: ", Year_old,"<br>Enrolment: ", enrolment_old, "%","<br>Gap: ", Gap, "%"), hoverinfo = "text") %>% 
+  add_markers(x = ~enrolment_new, y = ~Entity, name = "Enrolment today", color = colors[3], text = ~paste(Entity, "<br>Year: ", Year_new,"<br>Enrolment: ", enrolment_new, "%","<br>Gap: ", Gap, "%"), hoverinfo = "text")
+fig <- fig %>% layout(
+  title = "Change in primary enrollment rates over the past 20 years",
+  xaxis = list(title = "Percentage change"),
+  yaxis = list(title = "Country"),
+  margin = list(l = 65)
+)
+fig
+  
+```
+
+It is noticeable that, particularly in countries that already had a high school enrollment rate 20 years ago, this has not changed significantly. An exception here is El Salvador, where the enrollment rate remains at about 81% even 20 years later. The greatest changes are primarily observed in countries south of the Sahara. Except for Bhutan, all other countries with the greatest changes are from the Sub-Saharan Africa region. The largest change is seen in Burundi, where the enrollment rate increased from 41% to 93%. However, all other African countries shown here also improved their enrollment rates by 35% to 50%.
+
+In summary, it can be stated that millions of children worldwide still do not attend primary school. However, since 1987, the number has decreased from nearly 100 million to around 60 million in 2019. Most of the children who are not enrolled in school live in Sub-Saharan Africa. This region also exhibits the greatest educational inequalities between countries. Nevertheless, many of these countries have shown positive progress in enrollment rates over the past 20 years.
+
+### 3.3 Are there gender-specific differences in education?
+
+Next, we want to take a closer look at gender-specific differences in education worldwide. In Figure 5, the number of boys and girls of primary and secondary school age who do not attend school worldwide is shown.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Number of boys and girls not attending school worldwide", out.width = "100%"}
+
+df <- read.csv("./data/number-of-out-of-school-children.csv")
+
+df <- df %>% filter(Code == "OWID_WRL") %>%
+  rename(boys_not_in_school = `Out.of.school.children..adolescents.and.youth.of.primary.and.secondary.school.age..male..number.`) %>%
+  rename(girls_not_in_school = Out.of.school.children..adolescents.and.youth.of.primary.and.secondary.school.age..female..number.) 
+
+fig1 <- plot_ly(df, type = 'scatter', mode = 'lines', fill = 'tonexty')%>%
+  add_trace(x = ~Year, y = ~boys_not_in_school, name = 'Boys', line = list(color = 'blue'), fillcolor = 'rgba(0, 0, 255, 0.2)')%>%
+  layout(legend=list(title=list(text='Gender')), xaxis = list(title = 'Year'), yaxis = list(range = c(120000000,220000000), title = 'Children out of school'))
+
+
+fig2 <- plot_ly(df, type = 'scatter', mode = 'lines', fill = 'tonexty')%>%
+  add_trace(x = ~Year, y = ~girls_not_in_school, name = 'Girls')%>%
+  layout(legend=list(title=list(text='Gender')), xaxis = list(title = 'Year'), yaxis = list(range = c(120000000,220000000),title = '', showticklabels = FALSE))
+
+fig <- subplot(fig1, fig2,
+               nrows = 1, titleY = TRUE, titleX = TRUE) %>% layout(
+                 title = 'Number of boys and girls not attending school worldwide',
+                 xaxis = list(zerolinecolor = '#ffff',
+                              zerolinewidth = 20,
+                              gridcolor = 'ffff'),
+                 yaxis = list(zerolinecolor = '#ffff',
+                              zerolinewidth = 2,
+                              gridcolor = 'ffff'),
+                 plot_bgcolor='#e5ecf6')
+
+fig
+```
+
+The graphic illustrates that, until about 10 years ago, boys attended school more frequently than girls. Today, this gender difference has largely disappeared. Although global differences are now small, they can still vary from country to country. Therefore, Figure 6 shows the Gender Parity Index (GPI) for net enrollment rates in primary education since 1988. Gender parity is defined as a GPI between 0.97 and 1.03. Values below 0.97 favor males, and values above 1 favor females.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Gender parity in net enrolment rates in primary education", out.width = "100%"}
+
+df <- read_csv("./data/net-enrollment-rate-primary-gender-parity-index-gpi.csv")
+df <- df %>% 
+  filter(Code != "" & Code != "OWID_WRL") %>%
+  filter(Year != 2020 & Year != 2019 & Year != 2018) %>%
+  rename(gpi = `Total net enrolment rate, primary, gender parity index (GPI)`) %>%
+  mutate(gpi = round(gpi, 2))
+
+
+# black boundaries
+l <- list(color = toRGB("black"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = FALSE,
+  projection = list(type = 'Mercator')
+)
+
+fig <- plot_geo(df, frame = ~Year)
+fig <- fig %>% add_trace(
+  z = ~gpi,
+  text = ~Entity, 
+  locations = ~Code, 
+  marker = list(line = l),
+  colorscale = list(
+    c(0, "rgba(106,168,206,255)"), # Werte <= 0.97
+    c(0.485, "rgba(106,168,206,255)"),
+    c(0.485, "rgba(157,204,140,255)"), # Werte 0.97 bis 1.03
+    c(0.515, "rgba(157,204,140,255)"),
+    c(0.515, "rgba(244,164,49,255)"), # Werte > 1.03
+    c(1, "rgba(244,164,49,255)")
+  ),
+  colorbar = list(title = "GPI"),
+  zmin = 0,
+  zmax = 2
+  )
+
+fig <- fig %>% layout(
+  title = 'Gender parity in net enrolment rates in primary education',
+  geo = g
+)
+
+fig
+  
+```
+
+Figure 6 reveals that many countries around the world have achieved gender parity, especially in North America, Europe, and parts of Asia and South America. Countries in Sub-Saharan Africa and the East Asia and Pacific region show a stronger tendency to favor either boys or girls. The largest deviations in 2017 can be found in Chad (GPI: 0.76) and Zamiba (GPI: 1.05). The reasons for these unequal distributions are often due to cultural or socio-economic factors, although these are not investigated further in this paper. But what does this distribution look like when considering not just the children attending primary school? Figure 7 shows the proportion of boys or girls within the respective age group attending primary school, secondary school, or higher education.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Gender gap in primary, secondary and tertiary education, worldwide", out.width = "100%"}
+
+df <- read.csv("./data/gender-gap-education-levels.csv")
+df <- df %>% filter(Code == "OWID_WRL")
+df <- pivot_longer(df, cols = starts_with("Combined"), names_to = "who", values_to = "value")
+df <- df %>% mutate(value = round(value, 2)) %>%
+             mutate(who = recode(who, 
+                        "Combined.total.net.enrolment.rate..primary..female" = "Girls in primary education", 
+                        "Combined.total.net.enrolment.rate..primary..male" = "Boys in primary education",
+                        "Combined.total.net.enrolment.rate..secondary..female" = "Girls in secondary education", 
+                        "Combined.total.net.enrolment.rate..secondary..male" = "Boys in secondary education",
+                        "Combined.gross.enrolment.ratio.for.tertiary.education..female" = "Girls in tertiary education", 
+                        "Combined.gross.enrolment.ratio.for.tertiary.education..male" = "Boys in tertiary education"))
+
+
+accumulate_by <- function(dat, var) {
+  var <- lazyeval::f_eval(var, dat)
+  lvls <- plotly:::getLevels(var)
+  dats <- lapply(seq_along(lvls), function(x) {
+    cbind(dat[var %in% lvls[seq(1, x)], ], frame = lvls[[x]])
+  })
+  dplyr::bind_rows(dats)
+}
+
+df <- df %>% accumulate_by(~Year)
+
+fig <- df %>%
+  plot_ly(
+    x = ~Year, 
+    y = ~value,
+    split = ~who,
+    frame = ~frame, 
+    type = 'scatter',
+    mode = 'lines', 
+    text = ~who,
+    line = list(simplyfy = F)
+  )
+
+fig <- fig %>% layout(
+  title = 'Gender gap in primary, secondary and tertiary education, worldwide',
+  xaxis = list(
+    title = "Year",
+    zeroline = F
+  ),
+  yaxis = list(
+    title = "Percentage",
+    zeroline = F
+  )
+) 
+fig <- fig %>% animation_opts(
+  frame = 100, 
+  transition = 0, 
+  redraw = FALSE
+)
+fig <- fig %>% animation_slider(
+  hide = T
+)
+fig <- fig %>% animation_button(
+  x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+)
+
+fig
+```
+
+We can see that the graphs converge over time. The likelihood of young women enrolling in higher education is now even higher worldwide than for young men. Overall, it can be concluded that gender-specific differences in education worldwide have significantly decreased in recent decades. The earlier disparity, where significantly more boys attended school, has largely disappeared today.
+
+### 3.4 How is the quality of education in different countries?
+
+So far, we have mainly looked at how many children attend school. We have not yet closely examined the quality of the education they receive. One indicator that is used to measure global differences is the number of "learning-adjusted years of schooling." This indicator considers not only the time children spend in school but also the quality of education they receive during this time. It accounts for the fact that similar durations of schooling can lead to different outcomes. Figure 8 visualizes these learning-adjusted years of schooling for each country in 2022.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Average learning-adjusted years of schooling, 2020", out.width = "100%"}
+
+df <- read_csv("./data/learning-adjusted-years-of-school-lays.csv")
+df <- df %>% 
+  filter(Code != "" & Code != "OWID_WRL") %>%
+  filter(Year == 2020) %>%
+  rename(Years = `Learning-Adjusted Years of School`) %>%
+  mutate(Years = round(Years, 1))
+  
+  
+# black boundaries
+l <- list(color = toRGB("black"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = FALSE,
+  projection = list(type = 'Mercator')
+)
+
+fig <- plot_geo(df, frame = ~Year)
+fig <- fig %>% add_trace(
+  z = ~Years,
+  zmin = 0,
+  zmax = 13,
+  colors = 'Blues',
+  text = ~Entity, 
+  locations = ~Code, 
+  marker = list(line = l)
+)
+fig <- fig %>% layout(
+  title = 'Average learning-adjusted years of schooling, 2020',
+  geo = g
+)
+
+fig
+```
+
+The figure highlights the significant regional differences in educational quality. In some of the poorest countries in the world (e.g., Mali, Niger, or Chad), children receive less than three years of learning-adjusted schooling, while in wealthier countries, it is often more than 10 years. Particularly in regions such as South Asia and Sub-Saharan Africa, where most children live, the average number of years of high-quality schooling is often less than seven years. These disparities in educational quality have far-reaching impacts on the future opportunities and quality of life of the affected children and societies. The fact that children from poor countries are particularly affected by this poor educational quality is further highlighted in the following figures.
+
+::: panelset
+::: panel
+### Plot {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Expected years of schooling vs. share in extreme poverty, 2022", out.width = "100%"}
+df <- read.csv("./data/expected-years-of-schooling-vs-share-in-extreme-poverty.csv")
+countrys <- read.csv("./data/world-regions-according-to-the-world-bank.csv")
+countrys <- subset(countrys, select = -c(Entity, Year))
+df <- merge(df, countrys, by = "Code", all.x = TRUE)
+
+df <- df %>% 
+  filter(Code != "") %>%
+  filter(Code != "OWID_WRL") %>%
+  filter(Year >= 2017) %>%
+  mutate(Expected.years.of.schooling = round(Expected.years.of.schooling, 2)) %>%
+  mutate(X.2.15.a.day...Share.of.population.in.poverty = round(X.2.15.a.day...Share.of.population.in.poverty, 2))
+
+columns_to_check <- c(
+  'Expected.years.of.schooling',
+  "X.2.15.a.day...Share.of.population.in.poverty",
+  "Population..historical.estimates."
+)
+
+cleaned_data <- df[complete.cases(df[, columns_to_check]), ]
+
+df <- cleaned_data %>%
+  group_by(Entity) %>%
+  slice_max(Year, n = 1, with_ties = FALSE) %>%
+  ungroup()
+
+
+fig <- df %>%
+  plot_ly(
+    x = ~X.2.15.a.day...Share.of.population.in.poverty, 
+    y = ~Expected.years.of.schooling, 
+    size = ~Population..historical.estimates., 
+    color = ~World.Region.according.to.the.World.Bank, 
+    text = ~Entity, 
+    type = 'scatter',
+    mode = 'markers',
+    hovertemplate = paste(
+      ' Country: %{text}<br>',
+      'Share of Population in Poverty: %{x}<br>',
+      'Expected Years of Schooling: %{y}<br>'
+    )
+  )
+fig <- fig %>% 
+  layout(
+    title = "Expected years of schooling vs. share in extreme poverty, 2022",
+    xaxis = list(
+      title = "Share of population in poverty",
+      type = "log",
+      linewidth = 1,
+      tickvals = c(0.01, 0.1, 1, 10, 100),
+      ticktext = c("0.01", "0.1", "1", "10", "100")
+    ),
+    yaxis = list(
+      title = "Expected years of schooling",
+      linewidth = 1    
+    )
+)
+fig
+```
+:::
+
+::: panel
+### Plot with Regression Line {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Expected years of schooling vs. share in extreme poverty (regression line), 2022", out.width = "100%"}
+df <- read.csv("./data/expected-years-of-schooling-vs-share-in-extreme-poverty.csv")
+countrys <- read.csv("./data/world-regions-according-to-the-world-bank.csv")
+countrys <- subset(countrys, select = -c(Entity, Year))
+df <- merge(df, countrys, by = "Code", all.x = TRUE)
+
+df <- df %>% 
+  filter(Code != "") %>%
+  filter(Code != "OWID_WRL") %>%
+  filter(Year >= 2017) 
+
+columns_to_check <- c(
+  #'Expected.years.of.schooling',
+  "X.2.15.a.day...Share.of.population.in.poverty",
+  "Population..historical.estimates."
+)
+
+cleaned_data <- df[complete.cases(df[, columns_to_check]), ]
+
+df <- cleaned_data %>%
+  group_by(Entity) %>%
+  slice_max(Year, n = 1, with_ties = FALSE) %>%
+  ungroup()
+
+
+X <- df$X.2.15.a.day...Share.of.population.in.poverty
+y <- df$Expected.years.of.schooling
+
+lm_model <- linear_reg() %>% 
+  set_engine('lm') %>% 
+  set_mode('regression') %>%
+  fit(Expected.years.of.schooling ~ X.2.15.a.day...Share.of.population.in.poverty, data = df) 
+
+x_range <- seq(min(X), max(X), length.out = 100)
+x_range <- matrix(x_range, nrow=100, ncol=1)
+xdf <- data.frame(x_range)
+colnames(xdf) <- c('X.2.15.a.day...Share.of.population.in.poverty')
+
+ydf <- lm_model %>% predict(xdf) 
+
+colnames(ydf) <- c('Expected.years.of.schooling')
+xy <- data.frame(xdf, ydf) 
+
+fig <- plot_ly(df, 
+               x = ~X.2.15.a.day...Share.of.population.in.poverty, 
+               y = ~Expected.years.of.schooling, 
+               #size = ~Population..historical.estimates.,
+               type = 'scatter',
+               #color = ~World.Region.according.to.the.World.Bank,
+               alpha = 0.65, 
+               #text = ~Entity, 
+               #hoverinfo = "text",
+               mode = 'markers', 
+               name = 'Countries')
+
+fig <- fig %>% 
+  add_trace(
+    data = xy, 
+    x = ~X.2.15.a.day...Share.of.population.in.poverty, 
+    y = ~Expected.years.of.schooling, 
+    name = 'Regression Fit', 
+    mode = 'lines', 
+    alpha = 1)
+fig <- fig %>% 
+  layout(
+    title = "Expected years of schooling vs. share in extreme poverty (regression line), 2022",
+    xaxis = list(
+      title = "Share of population in poverty",
+      linewidth = 1
+    ),
+    yaxis = list(
+      title = "Expected years of schooling"
+    )
+  )
+fig
+```
+:::
+:::
+
+Expected years of schooling is the number of years a child of school-entry age can expect to spend in school if current age-specific enrollment rates persist throughout the child's schooling. Extreme poverty is defined as living below the international poverty line of \$2.15 per day. The size of the dots represents the population of the country. It should also be noted that the x-axis in Figure 9 is presented on a logarithmic scale to better visualize the data, as it spans a very wide range. While in many countries in Europe, Central Asia, and North America, less than 1% of the population lives in poverty, in countries in South Asia and Sub-Saharan Africa, it is often between 10% and 70%. When examining Figure 9, a strong negative correlation (r: -0.63) between the expected years of schooling and the proportion of the population living in poverty can be observed. This correlation is even more evident in Figure 10. Here, the x-axis is not logarithmic, and a regression line has been added. The influence of poverty on the expected years of schooling is clearly visible. The fact that the quality of education is strongly correlated with a country's wealth can also be confirmed by the following figures.
+
+::: panelset
+::: panel
+## Plot {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Average learning outcomes vs. GDP per capita, 2020", out.width = "100%"}
+
+df <- read.csv("./data/learning-outcomes-vs-gdp-per-capita.csv")
+
+df <- df %>% 
+  filter(Code != "") %>%
+  filter(Code != "OWID_WRL") %>%
+  filter(Year >= 2017) %>% 
+  select(-World.Region.according.to.the.World.Bank) %>% 
+  mutate(Harmonized.Test.Scores = round(Harmonized.Test.Scores, 0)) %>%
+  mutate(GDP.per.capita..PPP..constant.2017.international... = round(GDP.per.capita..PPP..constant.2017.international..., 0))
+
+countrys <- read.csv("./data/world-regions-according-to-the-world-bank.csv")
+countrys <- subset(countrys, select = -c(Entity, Year))
+df <- merge(df, countrys, by = "Code", all.x = TRUE)
+
+columns_to_check <- c(
+  'Harmonized.Test.Scores',
+  "GDP.per.capita..PPP..constant.2017.international...",
+  "Population..historical.estimates.",
+  "World.Region.according.to.the.World.Bank"
+)
+
+cleaned_data <- df[complete.cases(df[, columns_to_check]), ]
+
+df <- cleaned_data %>%
+  group_by(Entity) %>%
+  slice_max(Year, n = 1, with_ties = FALSE) %>%
+  ungroup()
+
+
+fig <- df %>%
+  plot_ly(
+    x = ~GDP.per.capita..PPP..constant.2017.international..., 
+    y = ~Harmonized.Test.Scores, 
+    size = ~Population..historical.estimates., 
+    color = ~World.Region.according.to.the.World.Bank, 
+    text = ~Entity, 
+    hoverinfo = "text",
+    type = 'scatter',
+    mode = 'markers',
+    hovertemplate = paste(
+      ' Country: %{text}<br>',
+      'Harmonized test scores: %{y}<br>',
+      'GDP per capita: %{x}<br>'
+    )
+  )
+fig <- fig %>% 
+  layout(
+    title = "Average learning outcomes vs. GDP per capita, 2020",
+    xaxis = list(
+      title = "GDP per capita",
+      linewidth = 2  
+    ),
+    yaxis = list(
+      title = "Harmonized test scores",
+      showline = FALSE,
+      zeorline = FALSE
+    )
+  )
+
+fig
+
+#round(cor(df$Harmonized.Test.Scores, df$GDP.per.capita..PPP..constant.2017.international..., use = "complete.obs"),2)
+```
+:::
+
+::: panel
+## Plot with Regression Line {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Average learning outcomes vs. GDP per capita (regression line), 2020", out.width = "100%"}
+
+df <- read.csv("./data/learning-outcomes-vs-gdp-per-capita.csv")
+
+df <- df %>% 
+  filter(Code != "") %>%
+  filter(Code != "OWID_WRL") %>%
+  filter(Year >= 2017) %>% 
+  select(-World.Region.according.to.the.World.Bank) %>% 
+  mutate(Harmonized.Test.Scores = round(Harmonized.Test.Scores, 0)) %>%
+  mutate(GDP.per.capita..PPP..constant.2017.international... = round(GDP.per.capita..PPP..constant.2017.international..., 0))
+
+countrys <- read.csv("./data/world-regions-according-to-the-world-bank.csv")
+countrys <- subset(countrys, select = -c(Entity, Year))
+df <- merge(df, countrys, by = "Code", all.x = TRUE)
+
+columns_to_check <- c(
+  'Harmonized.Test.Scores',
+  "GDP.per.capita..PPP..constant.2017.international...",
+  "Population..historical.estimates.",
+  "World.Region.according.to.the.World.Bank"
+)
+
+cleaned_data <- df[complete.cases(df[, columns_to_check]), ]
+
+df <- cleaned_data %>%
+  group_by(Entity) %>%
+  slice_max(Year, n = 1, with_ties = FALSE) %>%
+  ungroup()
+
+y <- df$Harmonized.Test.Scores
+X <- df$GDP.per.capita..PPP..constant.2017.international...
+
+lm_model <- linear_reg() %>% 
+  set_engine('lm') %>% 
+  set_mode('regression') %>%
+  fit(Harmonized.Test.Scores ~ GDP.per.capita..PPP..constant.2017.international..., data = df) 
+
+x_range <- seq(min(X), max(X), length.out = 100)
+x_range <- matrix(x_range, nrow=100, ncol=1)
+xdf <- data.frame(x_range)
+colnames(xdf) <- c('GDP.per.capita..PPP..constant.2017.international...')
+
+ydf <- lm_model %>% predict(xdf) 
+
+colnames(ydf) <- c('Harmonized.Test.Scores')
+xy <- data.frame(xdf, ydf) 
+
+fig <- plot_ly(df, 
+               x = ~GDP.per.capita..PPP..constant.2017.international..., 
+               y = ~Harmonized.Test.Scores, 
+               type = 'scatter', 
+               alpha = 0.65, 
+               mode = 'markers',
+               name = "Countries")
+fig <- fig %>% 
+  add_trace(
+    data = xy, 
+    x = ~GDP.per.capita..PPP..constant.2017.international..., 
+    y = ~Harmonized.Test.Scores, 
+    name = 'Regression Fit', 
+    mode = 'lines', 
+    alpha = 1)
+fig <- fig %>% 
+  layout(
+    title = "Average learning outcomes vs. GDP per capita (regression line), 2020",
+    xaxis = list(
+      title = "GDP per capita",
+      linewidth = 1  
+    ),
+    yaxis = list(
+      title = "Harmonized test scores",
+      showline = FALSE,
+      zeorline = FALSE
+    )
+  )
+fig
+```
+:::
+:::
+
+In Figures 11 and 12, the average learning outcomes are compared to GDP per capita in 2020. The average learning outcomes correspond to the harmonized values in standardized international and regional student performance tests. These figures also show a positive correlation (r: 0.73) between GDP per capita and average learning outcomes: children from countries with higher economic prosperity tend to achieve better educational results. However, there are exceptions, such as Vietnam, which achieves high learning outcomes despite having a lower GDP per capita, and some wealthy countries (e.g., Qatar) that do not perform as well as expected. Nevertheless, it is clear that children from poor regions like South Asia and Sub-Saharan Africa are particularly affected by these bad learning outcomes.
+
+To summarize, educational quality and outcomes are highly dependent on economic prosperity and regional differences. Countries with higher GDP per capita tend to have better learning outcomes. Especially in regions such as South Asia and Sub-Saharan Africa, many children are affected by poor educational quality and, consequently, poor educational outcomes.
+
+## 4. Comparing Educational Standards Worldwide
+
+To answer the second research question, a k-means cluster analysis is conducted in this chapter to identify countries with similar educational levels, highlighting similarities, but also pointing out differences from other clusters. The first step involves data collection and preprocessing.
+
+### 4.1 Data Collection & Preprocessing
+
+In order to obtain a meaningful dataset, we first merged all datasets from Chapter 3 and determined the most recent available data for each country. Since some columns often lacked values for individual countries, we removed columns with more than 75 missing values (NA). This reduced the dataframe to eight columns. Next, we checked which countries had more than two missing values (NA) and excluded these countries as well. For the remaining missing values in the dataframe, we calculated the mean of the respective column. The final dataset is shown below.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+df <- read.csv("./clustering/preprocessed_dataset.csv")
+df <- df %>%
+  rename(
+    Country = Entity,
+    Region = World.Region.according.to.the.World.Bank,
+    Enrolment = Combined.total.net.enrolment.rate..primary..both.sexes,
+    Years = Learning.Adjusted.Years.of.School,
+    Scores = Harmonized.Test.Scores,
+    GPI = Total.net.enrolment.rate..primary..gender.parity.index..GPI.,
+    GDP = GDP.per.capita..PPP..constant.2017.international...
+  )
+paged_table(df)
+```
+
+### 4.2 Clustering and Visualization
+
+The preprocessed dataset can now be used for clustering. To do this, the optimum number of clusters is first determined using the elbow method. For each number of clusters, the WCSS (Within-Cluster Sum of Square) is calculated. WCSS is the sum of the squared distances between each point and the center of gravity in a cluster. As the number of clusters increases, this value decreases further as the data is divided into increasingly finer groups. However, with an increasing number of clusters, the result also becomes more confusing. Therefore, the ellbow method is used to visually identify the point at which the WCSS value starts to decrease significantly slower. At this point, adding more clusters only slightly improves the fit within the clusters [@Basli]. Our result after applying the method is shown in Figure 13. In our case, we settle on four clusters.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Elbow method for optimal k", out.width = "100%"}
+
+preprocessed_dataset <- read.csv("./clustering/preprocessed_dataset.csv")
+data <-  preprocessed_dataset %>% select(-Entity, -Code, -World.Region.according.to.the.World.Bank) %>% scale()
+
+# Berechne WCSS für verschiedene k-Werte
+wcss <- function(k) {
+  kmeans(data, k, nstart = 10 )$tot.withinss
+}
+
+k_values <- 1:10
+wcss_values <- map_dbl(k_values, wcss)
+elbow_df <- data.frame(k = k_values, wcss = wcss_values)
+
+plot_ly(elbow_df, x = ~k, y = ~wcss, type = 'scatter', mode = 'lines+markers') %>%
+  layout(title = "Elbow method for optimal k",
+         xaxis = list(title = "Number of clusters k"),
+         yaxis = list(title = "Total within-cluster sum of squares (WCSS)"))
+```
+
+After determining the number of clusters, clustering can begin. The main goal of the k-means algorithm is to minimize the sum of distances between points and their respective cluster centroids, in order to group similar data points and discover underlying patterns or structures within the data [@Sharma]. Using Principal Component Analysis (PCA), a dimensionality reduction algorithm, the clustering results are visualized in Figure 14.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Results of the cluster analysis", out.width = "100%"}
+
+preprocessed_dataset <- read.csv("./clustering/preprocessed_dataset.csv")
+data <-  preprocessed_dataset %>% select(-Entity, -Code, -World.Region.according.to.the.World.Bank) %>% scale()
+# Clustering
+set.seed(123)
+kmeans_result <- kmeans(data, centers = 4, iter.max = 100, nstart = 100)
+preprocessed_dataset$Cluster <- kmeans_result$cluster
+preprocessed_dataset$Cluster <- as.character(preprocessed_dataset$Cluster)
+
+
+
+# PCA
+X <- subset(preprocessed_dataset, select = -c(Entity, Code, World.Region.according.to.the.World.Bank, Cluster))
+prin_comp <- prcomp(X, rank. = 3)
+components <- prin_comp[["x"]]
+components <- data.frame(components)
+components$PC2 <- -components$PC2
+components$PC3 <- -components$PC3
+components = cbind(components, preprocessed_dataset$Cluster)
+
+
+fig <- plot_ly(components, 
+               x = ~PC1, 
+               y = ~PC2, 
+               z = ~PC3, 
+               color = ~preprocessed_dataset$Cluster,
+               text = ~preprocessed_dataset$Entity, 
+               hoverinfo = "text"
+               )#, colors = c('#636EFA','#EF553B','#00CC96') )
+
+fig <- fig %>%
+  layout(
+    title = 'Results of the cluster analysis',
+    legend = list(title = list(text = "Cluster"))#,
+    #scene = list(bgcolor = "#e5ecf6")
+
+  )
+fig
+```
+
+To gain a better understanding of the individual clusters, we also created boxplots for each cluster, which are shown in the following figures.
+
+::: panelset
+::: panel
+## Enrolment rate {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Share of children in primary school age who are in school", out.width = "100%"}
+df <- read.csv("./clustering/preprocessed_dataset_with_cluster.csv")
+df <- df %>%
+  mutate(Cluster = as.character(Cluster))
+
+clusters <- unique(df$Cluster)
+colors <- RColorBrewer::brewer.pal(length(clusters), "Set2")
+
+
+fig <- plot_ly(df, x = ~Cluster, y = ~Combined.total.net.enrolment.rate..primary..both.sexes, type = 'box', 
+                  color = ~Cluster,
+                  colors = colors)
+fig <- fig %>% layout(
+  title = "Share of children in primary school age who are in school",
+  xaxis = list(title = 'Cluster', zeroline = TRUE, showline = TRUE),
+  yaxis = list(title = 'Percentage', zeroline = TRUE, showline = TRUE),
+  showlegend = FALSE
+)
+fig
+```
+:::
+
+::: panel
+## GPI {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Gender parity in net enrolment rates in primary education", out.width = "100%"}
+df <- read.csv("./clustering/preprocessed_dataset_with_cluster.csv")
+df <- df %>%
+  mutate(Cluster = as.character(Cluster))
+
+clusters <- unique(df$Cluster)
+colors <- RColorBrewer::brewer.pal(length(clusters), "Set2")
+
+
+fig <- plot_ly(df, x = ~Cluster, y = ~Total.net.enrolment.rate..primary..gender.parity.index..GPI., type = 'box', 
+               color = ~Cluster,
+               colors = colors)
+fig <- fig %>% layout(
+  title = "Gender parity in net enrolment rates in primary education",
+  xaxis = list(title = 'Cluster', zeroline = TRUE, showline = TRUE),
+  yaxis = list(title = 'GPI', zeroline = TRUE, showline = TRUE),
+  showlegend = FALSE
+)
+fig
+```
+:::
+
+::: panel
+## Years of schooling {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Average learning-adjusted years of schooling", out.width = "100%"}
+df <- read.csv("./clustering/preprocessed_dataset_with_cluster.csv")
+df <- df %>%
+  mutate(Cluster = as.character(Cluster))
+
+clusters <- unique(df$Cluster)
+colors <- RColorBrewer::brewer.pal(length(clusters), "Set2")
+
+
+fig <- plot_ly(df, x = ~Cluster, y =~Learning.Adjusted.Years.of.School, type = 'box', 
+               color = ~Cluster,
+               colors = colors)
+fig <- fig %>% layout(
+  title = "Average learning-adjusted years of schooling",
+  xaxis = list(title = 'Cluster', zeroline = TRUE, showline = TRUE),
+  yaxis = list(title = 'Years', zeroline = TRUE, showline = TRUE),
+  showlegend = FALSE
+)
+fig
+```
+:::
+
+::: panel
+## Learning outcomes {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Average learning outcomes", out.width = "100%"}
+df <- read.csv("./clustering/preprocessed_dataset_with_cluster.csv")
+df <- df %>%
+  mutate(Cluster = as.character(Cluster))
+
+clusters <- unique(df$Cluster)
+colors <- RColorBrewer::brewer.pal(length(clusters), "Set2")
+
+
+fig <- plot_ly(df, x = ~Cluster, y =~Harmonized.Test.Scores, type = 'box', 
+               color = ~Cluster,
+               colors = colors)
+fig <- fig %>% layout(
+  title = "Average learning outcomes",
+  xaxis = list(title = 'Cluster', zeroline = TRUE, showline = TRUE),
+  yaxis = list(title = 'Average learning outcomes', zeroline = TRUE, showline = TRUE),
+  showlegend = FALSE
+)
+fig
+```
+:::
+
+::: panel
+## GDP {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="GDP per capita", out.width = "100%"}
+df <- read.csv("./clustering/preprocessed_dataset_with_cluster.csv")
+df <- df %>%
+  mutate(Cluster = as.character(Cluster))
+
+clusters <- unique(df$Cluster)
+colors <- RColorBrewer::brewer.pal(length(clusters), "Set2")
+
+
+fig <- plot_ly(df, x = ~Cluster, y =~GDP.per.capita..PPP..constant.2017.international..., type = 'box', 
+               color = ~Cluster,
+               colors = colors)
+fig <- fig %>% layout(
+  title = "GDP per capita",
+  xaxis = list(title = 'Cluster'),
+  yaxis = list(title = 'GDP per capita', zeroline = TRUE, showline = TRUE),
+  showlegend = FALSE
+)
+fig
+```
+:::
+
+::: panel
+## Data {.panel-name}
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", out.width = "100%"}
+df <- read.csv("./clustering/preprocessed_dataset_with_cluster.csv")
+df <- df %>%
+  rename(
+    Country = Entity,
+    Region = World.Region.according.to.the.World.Bank,
+    Enrolment = Combined.total.net.enrolment.rate..primary..both.sexes,
+    Years = Learning.Adjusted.Years.of.School,
+    Scores = Harmonized.Test.Scores,
+    GPI = Total.net.enrolment.rate..primary..gender.parity.index..GPI.,
+    GDP = GDP.per.capita..PPP..constant.2017.international...
+  ) %>% 
+  select(Country, Region, Cluster, Enrolment, Years, Scores, GPI, GDP)
+paged_table(df)
+```
+:::
+:::
+
+The countries in the first and third clusters are the most similar in terms of education level. However, countries in the third cluster outperform those in the first cluster in terms of enrollment rates, expected years of schooling, and learning outcomes. On average, countries in the third cluster are also wealthier than those in the first cluster. Many countries in the third cluster are poor European countries or countries from Latin America or East Asia. Examples include Albania, Bulgaria, Brazil, Costa Rica, and China. Despite their challenges in education, these countries often have better resources and infrastructure compared to countries in the first cluster. Countries in the first cluster, such as Cameroon, South Africa, Honduras, Morocco, and the Philippines, on the other hand, often face greater socio-economic obstacles that can hinder access to education and the quality of education. These countries grapple with challenges such as high poverty rates, unequal distribution of resources, and infrastructure deficits, all of which negatively impact the education system.
+
+The fourth cluster consists mostly of countries from Sub-Saharan Africa. These countries are the poorest countries in the world. Political instability and armed conflicts as well as food scarcity are widespread and impair the ability of governments to establish and maintain a functioning education system. These challenges are also reflected in the results.
+
+The second cluster, in contrast, includes mainly European and North American countries. These economically strong nations have well-developed education systems that typically ensure access to high-quality education for all children. School attendance rates are very high, with extensive government support and numerous educational initiatives aimed at reducing social inequalities and supporting disadvantaged groups. Countries in this cluster have the highest number of learning-adjusted years of schooling and also achieve the highest learning outcomes.
+
+## 5. Conclusion
+
+The aim of this paper was to provide a better understanding of global educational disparities and developments. In particular, it analyzed how enrollment rates, gender-specific differences, and the quality of education vary in different countries and regions of the world and what trends can be observed over time. A special focus was also placed on identifying similarities and differences in the educational levels among individual countries.
+
+In summary, it can be stated that the world has made significant progress in recent decades. While nearly 100 million children could not attend school in the 1990s, this number has decreased to approximately 60 million children. The previously prevalent inequality, where significantly more boys attended school than girls, has also largely disappeared today. However, it has also become clear that the quality and outcomes of education are strongly dependent on a country's economic prosperity. Therefore, despite the significant progress made in recent decades, there are still countries with substantial problems in the education sector. The poorest countries in the world, which are marked by high poverty rates, food scarcity, and political instability, are the most affected. The resulting low enrollment rates and poor learning outcomes reflect the difficult living conditions under which many children in these countries grow up. These findings underscore the need for targeted measures and international cooperation to reduce educational inequalities worldwide and to provide all children with the opportunity for high-quality education.
